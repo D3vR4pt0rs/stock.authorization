@@ -3,8 +3,9 @@ package postgres
 import (
 	"strconv"
 
-	"authentication/internal/entities"
+	entities "authentication/internal/entities"
 	"github.com/D3vR4pt0rs/logger"
+
 	"github.com/jackc/pgx"
 )
 
@@ -46,10 +47,12 @@ func (postgres *dbClient) GetAllProfile() ([]entities.Profile, error) {
 			return []entities.Profile{}, err
 		}
 		profile := entities.Profile{
-			ID:       int(values[0].(int32)),
-			Email:    values[1].(string),
-			Password: values[2].(string),
-			Balance:  float64(values[3].(float32)),
+			ID: int(values[0].(int32)),
+			Credentials: entities.Credentials{
+				Email:    values[1].(string),
+				Password: values[2].(string),
+			},
+			Balance: float64(values[3].(float32)),
 		}
 		profiles = append(profiles, profile)
 	}
@@ -63,10 +66,22 @@ func (postgres *dbClient) GetProfileByEmail(value string) (entities.Profile, err
 		logger.Error.Println(err.Error())
 		return entities.Profile{}, err
 	}
+
 	return entities.Profile{
-		ID:       int(profile.ID),
-		Email:    profile.Email,
-		Password: profile.Password,
-		Balance:  float64(profile.Balance),
+		Credentials: entities.Credentials{
+			Email:    profile.Email,
+			Password: profile.Password,
+		},
+		ID:      int(profile.ID),
+		Balance: float64(profile.Balance),
 	}, nil
+}
+
+func (postgres *dbClient) AddProfile(credentials entities.Credentials) error {
+	_, err := postgres.client.Exec("insert into profiles (email,password) values ($1,$2)", credentials.Email, credentials.Password)
+	if err != nil {
+		logger.Error.Println(err.Error())
+		return err
+	}
+	return nil
 }

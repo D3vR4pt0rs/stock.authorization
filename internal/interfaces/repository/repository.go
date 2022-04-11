@@ -3,10 +3,8 @@ package repository
 import "authentication/internal/entities"
 
 type driver interface {
-	AddProfile(profile entities.Profile) error
-	AddRefreshSession(profile entities.RefreshSession) error
-	GetProfile(key, value string) (entities.Profile, error)
-	GetRefreshSession(key, value string) (entities.RefreshSession, error)
+	AddProfile(credentials entities.Credentials) error
+	GetProfileByEmail(email string) (entities.Profile, error)
 }
 
 type database struct {
@@ -17,4 +15,12 @@ func New(dbHandler driver) *database {
 	return &database{
 		d: dbHandler,
 	}
+}
+
+func (driver database) InsertProfile(credentials entities.Credentials) error {
+	return driver.d.AddProfile(credentials)
+}
+
+func (driver database) QueryProfileByEmail(email string) (entities.Profile, error) {
+	return driver.d.GetProfileByEmail(email)
 }

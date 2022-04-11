@@ -1,24 +1,19 @@
 package entities
 
+import "github.com/dgrijalva/jwt-go/v4"
+
 type Profile struct {
-	ID       int     `json:"id"`
-	Email    string  `json:"email"`
-	Password string  `json:"password"`
-	Balance  float64 `json:"balance"`
+	Credentials
+	ID      int     `json:"id"`
+	Balance float64 `json:"balance"`
 }
 
-type TokenInformation struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresIn    int    `json:"expires_in"`
+type Credentials struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
-type RefreshSession struct {
-	ID           string `json:"id"`
-	UserId       string `json:"user_id"`
-	RefreshToken string `json:"refresh_token"`
-	UserAgent    string `json:"user_agent"`
-	Fingerprint  string `json:"fingerprint"`
-	ExpiresIn    int    `json:"expires_in"`
-	CreatedAt    int    `json:"created_at"`
+type Claims struct {
+	jwt.StandardClaims
+	UserId int `json:"user_id"`
 }
