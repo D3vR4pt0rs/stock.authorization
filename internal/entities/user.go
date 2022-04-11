@@ -1,9 +1,10 @@
 package entities
 
 type Profile struct {
-	ID       string `json:"id"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	ID       int     `json:"id"`
+	Email    string  `json:"email"`
+	Password string  `json:"password"`
+	Balance  float64 `json:"balance"`
 }
 
 type TokenInformation struct {
