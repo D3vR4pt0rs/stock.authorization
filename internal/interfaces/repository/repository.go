@@ -35,7 +35,7 @@ func (driver driver) QueryProfileByEmail(email string) (entities.Profile, error)
 func (driver driver) GenerateAuthenticationToken(profileId int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &entities.Claims{
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: jwt.At(time.Now().Add(60)),
+			ExpiresAt: jwt.At(time.Now().Add(60 * 24 * time.Hour)),
 			IssuedAt:  jwt.At(time.Now()),
 		},
 		UserId: profileId,
