@@ -29,9 +29,9 @@ func main() {
 	}
 	psClient := postgres.New(config)
 
-	repo := repository.New(psClient)
+	repo := repository.New(psClient, os.Getenv("SECRET_KEY"))
 
-	application := storage.New(repo, os.Getenv("SECRET_KEY"))
+	application := storage.New(repo)
 
 	router := mux.NewRouter()
 	handlers.Make(router, application)

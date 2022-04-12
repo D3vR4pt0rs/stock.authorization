@@ -1,11 +1,8 @@
 package storage
 
 import (
-	"time"
-
 	"authentication/internal/entities"
 	"github.com/D3vR4pt0rs/logger"
-	"github.com/dgrijalva/jwt-go/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,30 +14,27 @@ type Controller interface {
 type Repository interface {
 	InsertProfile(credentials entities.Credentials) error
 	QueryProfileByEmail(email string) (entities.Profile, error)
+	GenerateAuthenticationToken(profileID int) (string, error)
 }
 
 type application struct {
-	repo      Repository
-	secretKey string
+	repo Repository
 }
 
-func New(repo Repository, secretKey string) *application {
+func New(repo Repository) *application {
 	return &application{
-		repo:      repo,
-		secretKey: secretKey,
+		repo: repo,
 	}
 }
 
 func (app application) Registration(credentials entities.Credentials) error {
 	_, err := app.repo.QueryProfileByEmail(credentials.Email)
 	if err == nil {
-		logger.Error.Println("Account exist")
 		return AccountExistError
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
 	if err != nil {
-		logger.Error.Println(err.Error())
 		return InternalError
 	}
 
@@ -48,7 +42,6 @@ func (app application) Registration(credentials entities.Credentials) error {
 	err = app.repo.InsertProfile(credentials)
 
 	if err != nil {
-		logger.Error.Println(err.Error())
 		return InternalError
 	}
 	return nil
@@ -57,7 +50,6 @@ func (app application) Registration(credentials entities.Credentials) error {
 func (app application) SignUp(credentials entities.Credentials) (string, error) {
 	profile, err := app.repo.QueryProfileByEmail(credentials.Email)
 	if err != nil {
-		logger.Error.Println("Account didn't exist")
 		return "", AccountNotFoundError
 	}
 
@@ -67,13 +59,9 @@ func (app application) SignUp(credentials entities.Credentials) (string, error) 
 		return "", WrongPasswordError
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &entities.Claims{
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: jwt.At(time.Now().Add(60)),
-			IssuedAt:  jwt.At(time.Now()),
-		},
-		UserId: profile.ID,
-	})
-
-	return token.SignedString([]byte(app.secretKey))
+	token, err := app.repo.GenerateAuthenticationToken(profile.ID)
+	if err != nil {
+		return "", InternalError
+	}
+	return token, nil
 }
