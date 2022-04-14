@@ -27,7 +27,11 @@ func main() {
 		Port:     os.Getenv("POSTGRES_PORT"),
 		Database: os.Getenv("POSTGRES_DATABASE"),
 	}
-	psClient := postgres.New(config)
+
+	psClient, err := postgres.New(config)
+	if err != nil {
+		os.Exit(1)
+	}
 
 	repo := repository.New(psClient, os.Getenv("SECRET_KEY"))
 

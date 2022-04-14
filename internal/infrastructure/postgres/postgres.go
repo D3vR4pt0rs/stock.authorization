@@ -21,16 +21,17 @@ type dbClient struct {
 	client *pgx.Conn
 }
 
-func New(cnfg Config) *dbClient {
+func New(cnfg Config) (*dbClient, error) {
 	port, _ := strconv.Atoi(cnfg.Port)
 	postgressConfig := pgx.ConnConfig{Host: cnfg.Ip, Port: uint16(port), User: cnfg.Username, Password: cnfg.Password, Database: cnfg.Database}
 	conn, err := pgx.Connect(postgressConfig)
 	if err != nil {
 		logger.Error.Println(err.Error())
+		return &dbClient{}, err
 	}
 	return &dbClient{
 		client: conn,
-	}
+	}, nil
 }
 
 func (postgres *dbClient) GetAllProfile() ([]entities.Profile, error) {
