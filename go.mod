@@ -7,6 +7,7 @@ require (
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx v3.6.2+incompatible
+	github.com/rs/cors v1.8.2
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 )
 
